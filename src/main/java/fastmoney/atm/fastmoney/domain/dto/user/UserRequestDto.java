@@ -11,6 +11,7 @@ public record UserRequestDto(
         @CPF
         String cpf,
         @Email
+        @NotBlank
         String email,
         @NotBlank
         String password,
