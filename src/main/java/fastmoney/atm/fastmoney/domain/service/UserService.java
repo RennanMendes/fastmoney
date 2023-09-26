@@ -3,7 +3,6 @@ package fastmoney.atm.fastmoney.domain.service;
 import fastmoney.atm.fastmoney.domain.dto.user.UserRequestDto;
 import fastmoney.atm.fastmoney.domain.dto.user.UserResponseDto;
 import fastmoney.atm.fastmoney.domain.dto.user.UserUpdateDto;
-import fastmoney.atm.fastmoney.domain.exception.UserNotFoundException;
 import fastmoney.atm.fastmoney.domain.model.User;
 import fastmoney.atm.fastmoney.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class UserService {
 
     public Page<UserResponseDto> findAll(Pageable page) {
         Page<User> users = repository.findByActiveTrue(page);
-        return users.map(user -> new UserResponseDto(user));
+        return users.map(UserResponseDto::new);
     }
 
     @Transactional
@@ -49,7 +48,6 @@ public class UserService {
     }
 
     public User findByIdAndActiveTrue(Long id) {
-        User user = repository.findByIdAndActiveTrue(id).orElseThrow(() -> new UserNotFoundException());
-        return user;
+        return  repository.findByIdAndActiveTrue(id).orElseThrow(() -> new RuntimeException("ABobora"));
     }
 }
