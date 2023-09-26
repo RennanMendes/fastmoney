@@ -179,17 +179,4 @@ class UserControllerTest {
                 true);
     }
 
-    private User createUser(Long id, String name, String cpf, String email, int accountNumber) {
-        return new User(id,
-                name,
-                cpf,
-                email,
-                "1234",
-                new Account("100",
-                        accountNumber,
-                        BigDecimal.ZERO,
-                        "1234"),
-                true);
-    }
-
 }

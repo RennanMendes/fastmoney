@@ -3,6 +3,7 @@ package fastmoney.atm.fastmoney.domain.service;
 import fastmoney.atm.fastmoney.domain.dto.user.UserRequestDto;
 import fastmoney.atm.fastmoney.domain.dto.user.UserResponseDto;
 import fastmoney.atm.fastmoney.domain.dto.user.UserUpdateDto;
+import fastmoney.atm.fastmoney.domain.exception.UserNotFoundException;
 import fastmoney.atm.fastmoney.domain.model.User;
 import fastmoney.atm.fastmoney.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService {
 
-    @Autowired
     private UserRepository repository;
+
+    @Autowired
+    public UserService(UserRepository repository) {
+        this.repository = repository;
+    }
 
     public UserResponseDto create(UserRequestDto userData) {
         User user = repository.save(new User(userData));
@@ -48,6 +53,6 @@ public class UserService {
     }
 
     public User findByIdAndActiveTrue(Long id) {
-        return  repository.findByIdAndActiveTrue(id).orElseThrow(() -> new RuntimeException("ABobora"));
+        return  repository.findByIdAndActiveTrue(id).orElseThrow(UserNotFoundException::new);
     }
 }
