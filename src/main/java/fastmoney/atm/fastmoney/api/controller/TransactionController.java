@@ -16,8 +16,14 @@ public class TransactionController {
     TransactionService transactionService;
 
     @PostMapping("/deposits/{id}")
-    public ResponseEntity<TransactionResponseDto> deposit(@PathVariable Long id, @RequestBody @Valid TransactionRequestDto requestDto){
-        TransactionResponseDto responseDto = transactionService.deposit(id,requestDto);
+    public ResponseEntity<TransactionResponseDto> deposit(@PathVariable Long id, @RequestBody @Valid TransactionRequestDto requestDto) {
+        TransactionResponseDto responseDto = transactionService.deposit(id, requestDto);
+        return ResponseEntity.ok().body(responseDto);
+    }
+
+    @PostMapping("/withdrawals/{id}")
+    public ResponseEntity<TransactionResponseDto> withdraw(@PathVariable Long id, @RequestBody @Valid TransactionRequestDto requestDto) {
+        TransactionResponseDto responseDto = transactionService.withdraw(id, requestDto);
         return ResponseEntity.ok().body(responseDto);
     }
 
