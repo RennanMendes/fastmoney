@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,9 +33,9 @@ public class User {
     public User(UserRequestDto userData) {
         this.name = userData.name();
         this.cpf = userData.cpf();
-        this.email= userData.email();
+        this.email = userData.email();
         this.password = userData.password();
-        this.account  = new Account(userData.accountBranch(), userData.pin());
+        this.account = new Account(userData.accountBranch(), userData.pin());
         this.active = true;
     }
 
@@ -47,4 +48,5 @@ public class User {
     public void delete() {
         this.active = false;
     }
+
 }
