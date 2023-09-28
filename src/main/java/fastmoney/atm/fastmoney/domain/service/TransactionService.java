@@ -32,7 +32,7 @@ public class TransactionService {
     public TransactionResponseDto deposit(Long id, TransactionRequestDto requestDto) {
         User user = userService.findByIdAndActiveTrue(id);
         this.validate(user, requestDto, TransactionType.INPUT);
-        Transaction transaction = transfer(user, FinancialTransaction.WITHDRAWAL, TransactionType.INPUT, requestDto.value());
+        Transaction transaction = transfer(user, FinancialTransaction.DEPOSIT, TransactionType.INPUT, requestDto.value());
 
         return new TransactionResponseDto(transaction);
     }
