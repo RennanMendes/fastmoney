@@ -46,7 +46,7 @@ class TransactionControllerTest {
     void shouldReturnStatus200_WhenValidDeposit() throws Exception {
         Long id = 1L;
         TransactionRequestDto request = new TransactionRequestDto(TRANSACTION_VALUE, "1234");
-        TransactionResponseDto expectedResponse = createTransactionResponse();
+        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.DEPOSIT);
 
         when(transactionService.deposit(id, request)).thenReturn(expectedResponse);
 
@@ -84,9 +84,50 @@ class TransactionControllerTest {
         Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
     }
 
+    @Test
+    void shouldReturnStatus200_WhenValidWithdraw() throws Exception {
+        Long id = 1L;
+        TransactionRequestDto request = new TransactionRequestDto(TRANSACTION_VALUE, "1234");
+        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.WITHDRAWAL);
 
-    private TransactionResponseDto createTransactionResponse() {
-        return new TransactionResponseDto(createUserDto(), FinancialTransaction.DEPOSIT, TRANSACTION_VALUE);
+        when(transactionService.withdraw(id, request)).thenReturn(expectedResponse);
+
+        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/withdrawals/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        String jsonResponse = resultActions.andReturn().getResponse().getContentAsString();
+
+        Assertions.assertEquals(objectMapper.writeValueAsString(expectedResponse), jsonResponse);
+        Assertions.assertTrue(HttpStatus.OK.value() == resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    void shouldReturnStatus400_WhenWorthlessWithdraw() throws Exception {
+        Long id = 1L;
+        TransactionRequestDto request = new TransactionRequestDto(null, "1234");
+
+        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/withdrawals/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
+    }
+
+    @Test
+    void shouldReturnStatus400_WhenWithdrawWithoutPin() throws Exception {
+        Long id = 1L;
+        TransactionRequestDto request = new TransactionRequestDto(TRANSACTION_VALUE, "");
+
+        ResultActions resultActions = mockMvc.perform(post(BASE_URL + "/withdrawals/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)));
+
+        Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
+    }
+
+    private TransactionResponseDto createTransactionResponse(FinancialTransaction financialTransaction) {
+        return new TransactionResponseDto(createUserDto(), financialTransaction, TRANSACTION_VALUE);
     }
 
     private UserResponseDto createUserDto() {
