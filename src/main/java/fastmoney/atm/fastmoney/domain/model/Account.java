@@ -1,5 +1,6 @@
 package fastmoney.atm.fastmoney.domain.model;
 
+import fastmoney.atm.fastmoney.domain.enumerated.TransactionType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
@@ -32,7 +33,7 @@ public class Account {
         this.pin = pin;
     }
 
-    private int newAccountNumber(){
+    private int newAccountNumber() {
         Random random = new Random();
         return random.nextInt(9000) + 1000;
     }
@@ -40,4 +41,13 @@ public class Account {
     public void update(String pin) {
         this.pin = pin;
     }
+
+    public void calculateBalance(TransactionType transactionType, BigDecimal value) {
+        if (transactionType == TransactionType.INPUT) {
+            this.balance = this.balance.add(value);
+        } else {
+            this.balance = this.balance.subtract(value);
+        }
+    }
+
 }
