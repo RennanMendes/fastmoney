@@ -30,13 +30,27 @@ public class TransactionService {
     }
 
     public TransactionResponseDto deposit(Long id, TransactionRequestDto requestDto) {
+        TransactionType type =  TransactionType.INPUT;
         User user = userService.findByIdAndActiveTrue(id);
-        ValidationDto dto = new ValidationDto(user, requestDto.value(), requestDto.pin(), TransactionType.INPUT);
+        ValidationDto dto = new ValidationDto(user, requestDto.value(), requestDto.pin(), type);
 
         validators.forEach(v -> v.validate(dto));
 
-        user.getAccount().calculateBalance(TransactionType.INPUT, requestDto.value());
-        Transaction transaction = transaction(user, FinancialTransaction.DEPOSIT, TransactionType.INPUT, requestDto.value());
+        user.getAccount().calculateBalance(type, requestDto.value());
+        Transaction transaction = transaction(user, FinancialTransaction.DEPOSIT, type, requestDto.value());
+
+        return new TransactionResponseDto(transaction);
+    }
+
+    public TransactionResponseDto withdraw(Long id, TransactionRequestDto requestDto) {
+        TransactionType type =  TransactionType.OUTPUT;
+        User user = userService.findByIdAndActiveTrue(id);
+        ValidationDto dto = new ValidationDto(user, requestDto.value(), requestDto.pin(), type);
+
+        validators.forEach(v -> v.validate(dto));
+
+        user.getAccount().calculateBalance(type, requestDto.value());
+        Transaction transaction = transaction(user, FinancialTransaction.WITHDRAWAL, type, requestDto.value());
 
         return new TransactionResponseDto(transaction);
     }
