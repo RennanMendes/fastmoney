@@ -1,9 +1,8 @@
 package fastmoney.atm.fastmoney.domain.service;
 
-import fastmoney.atm.fastmoney.domain.dto.account.AccountResponseDto;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionRequestDto;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionResponseDto;
-import fastmoney.atm.fastmoney.domain.dto.user.UserResponseDto;
+import fastmoney.atm.fastmoney.domain.dto.user.UserTransactionDto;
 import fastmoney.atm.fastmoney.domain.enumerated.FinancialTransaction;
 import fastmoney.atm.fastmoney.domain.enumerated.TransactionType;
 import fastmoney.atm.fastmoney.domain.exception.InvalidBalanceException;
@@ -23,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -54,7 +54,6 @@ class TransactionServiceTest {
     @Test
     void shouldReturnTransactionResponseDto_WhenValidDeposit() {
         TransactionRequestDto request = new TransactionRequestDto(TRANSACTION_VALUE, "1234");
-        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.DEPOSIT);
         User user = createUser(BigDecimal.ZERO);
         Transaction transaction = createTransaction(user, FinancialTransaction.DEPOSIT, TransactionType.INPUT);
 
@@ -62,6 +61,8 @@ class TransactionServiceTest {
         when(repository.save(any())).thenReturn(transaction);
 
         TransactionResponseDto response = transactionService.deposit(ID, request);
+
+        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.DEPOSIT, TransactionType.INPUT, response.date(), BigDecimal.ZERO);
 
         Assertions.assertEquals(expectedResponse, response);
     }
@@ -97,7 +98,6 @@ class TransactionServiceTest {
     @Test
     void shouldReturnTransactionResponseDto_WhenValidWithdrawal() {
         TransactionRequestDto request = new TransactionRequestDto(TRANSACTION_VALUE, "1234");
-        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.WITHDRAWAL);
         User user = createUser(new BigDecimal("20"));
         Transaction transaction = createTransaction(user, FinancialTransaction.WITHDRAWAL, TransactionType.OUTPUT);
 
@@ -105,6 +105,7 @@ class TransactionServiceTest {
         when(repository.save(any())).thenReturn(transaction);
 
         TransactionResponseDto response = transactionService.withdraw(ID, request);
+        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.WITHDRAWAL, TransactionType.OUTPUT, response.date(), new BigDecimal("20"));
 
         Assertions.assertEquals(expectedResponse, response);
     }
@@ -151,16 +152,23 @@ class TransactionServiceTest {
         Assertions.assertTrue(error instanceof InvalidBalanceException);
     }
 
-    private TransactionResponseDto createTransactionResponse(FinancialTransaction financialTransaction) {
-        return new TransactionResponseDto(createUserDto(TRANSACTION_VALUE), financialTransaction, TRANSACTION_VALUE);
+    private TransactionResponseDto createTransactionResponse(FinancialTransaction financialTransaction, TransactionType type, Instant date, BigDecimal balance) {
+        return new TransactionResponseDto(
+                financialTransaction,
+                type,
+                date,
+                TRANSACTION_VALUE,
+                balance,
+                createUserTransactionDto(TRANSACTION_VALUE),
+                null);
     }
 
     private Transaction createTransaction(User user, FinancialTransaction financialTransaction, TransactionType type) {
         return new Transaction(user, financialTransaction, type, TRANSACTION_VALUE);
     }
 
-    private UserResponseDto createUserDto(BigDecimal balance) {
-        return new UserResponseDto(createUser(balance));
+    private UserTransactionDto createUserTransactionDto(BigDecimal balance) {
+        return new UserTransactionDto(createUser(balance));
     }
 
     private User createUser(BigDecimal balance) {

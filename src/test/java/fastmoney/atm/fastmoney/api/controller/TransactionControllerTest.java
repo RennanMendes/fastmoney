@@ -1,11 +1,11 @@
 package fastmoney.atm.fastmoney.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fastmoney.atm.fastmoney.domain.dto.account.AccountResponseDto;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionRequestDto;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionResponseDto;
-import fastmoney.atm.fastmoney.domain.dto.user.UserResponseDto;
+import fastmoney.atm.fastmoney.domain.dto.user.UserTransactionDto;
 import fastmoney.atm.fastmoney.domain.enumerated.FinancialTransaction;
+import fastmoney.atm.fastmoney.domain.enumerated.TransactionType;
 import fastmoney.atm.fastmoney.domain.service.TransactionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -46,7 +47,7 @@ class TransactionControllerTest {
     void shouldReturnStatus200_WhenValidDeposit() throws Exception {
         Long id = 1L;
         TransactionRequestDto request = new TransactionRequestDto(TRANSACTION_VALUE, "1234");
-        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.DEPOSIT);
+        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.DEPOSIT, TransactionType.INPUT);
 
         when(transactionService.deposit(id, request)).thenReturn(expectedResponse);
 
@@ -88,7 +89,7 @@ class TransactionControllerTest {
     void shouldReturnStatus200_WhenValidWithdraw() throws Exception {
         Long id = 1L;
         TransactionRequestDto request = new TransactionRequestDto(TRANSACTION_VALUE, "1234");
-        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.WITHDRAWAL);
+        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.WITHDRAWAL, TransactionType.OUTPUT);
 
         when(transactionService.withdraw(id, request)).thenReturn(expectedResponse);
 
@@ -126,16 +127,23 @@ class TransactionControllerTest {
         Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
     }
 
-    private TransactionResponseDto createTransactionResponse(FinancialTransaction financialTransaction) {
-        return new TransactionResponseDto(createUserDto(), financialTransaction, TRANSACTION_VALUE);
+    private TransactionResponseDto createTransactionResponse(FinancialTransaction financialTransaction, TransactionType type) {
+        return new TransactionResponseDto(
+                financialTransaction,
+                type,
+                Instant.parse("2023-09-29T16:15:19.827691Z"),
+                TRANSACTION_VALUE,
+                TRANSACTION_VALUE,
+                createUserDto(),
+                null);
     }
 
-    private UserResponseDto createUserDto() {
-        return new UserResponseDto(1L, "Rennan", "724.622.900-01", "rennan@email.com", createAccountDto(), true);
-    }
-
-    private AccountResponseDto createAccountDto() {
-        return new AccountResponseDto("1010", 2525, TRANSACTION_VALUE);
+    private UserTransactionDto createUserDto() {
+        return new UserTransactionDto(
+                1L,
+                "Rennan",
+                "1010",
+                2525);
     }
 
 }
