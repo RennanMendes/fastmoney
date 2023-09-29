@@ -1,10 +1,8 @@
 package fastmoney.atm.fastmoney.infra.exception;
 
-import fastmoney.atm.fastmoney.domain.exception.InvalidBalanceException;
-import fastmoney.atm.fastmoney.domain.exception.InvalidPinException;
-import fastmoney.atm.fastmoney.domain.exception.InvalidValueException;
-import fastmoney.atm.fastmoney.domain.exception.UserNotFoundException;
+import fastmoney.atm.fastmoney.domain.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,14 +19,14 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity handleDataIntegrityViolationException(DataIntegrityViolationException exception){
+    public ResponseEntity handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
         var error = exception.getMessage();
         return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity handleUserNotFoundException(){
-        return ResponseEntity.notFound().build();
+    public ResponseEntity handleUserNotFoundException(UserNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(InvalidBalanceException.class)
@@ -43,6 +41,11 @@ public class ErrorHandler {
 
     @ExceptionHandler(InvalidValueException.class)
     public ResponseEntity handleInvalidValueException(InvalidValueException exception) {
+        return ResponseEntity.badRequest().body(exception.getMessage());
+    }
+
+    @ExceptionHandler(BusinessHoursException.class)
+    public ResponseEntity handleBusinessHoursException(BusinessHoursException exception) {
         return ResponseEntity.badRequest().body(exception.getMessage());
     }
 
