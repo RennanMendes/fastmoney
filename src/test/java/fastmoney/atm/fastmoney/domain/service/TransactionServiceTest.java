@@ -62,7 +62,8 @@ class TransactionServiceTest {
 
         TransactionResponseDto response = transactionService.deposit(ID, request);
 
-        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.DEPOSIT, TransactionType.INPUT, response.date(), BigDecimal.ZERO);
+        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.DEPOSIT,
+                TransactionType.INPUT, response.date(), BigDecimal.ZERO);
 
         Assertions.assertEquals(expectedResponse, response);
     }
@@ -74,9 +75,7 @@ class TransactionServiceTest {
         when(userService.findByIdAndActiveTrue(ID)).thenReturn(user);
 
         InvalidValueException error =
-                Assertions.assertThrows(InvalidValueException.class, () -> {
-                    transactionService.deposit(ID, request);
-                });
+                Assertions.assertThrows(InvalidValueException.class, () -> transactionService.deposit(ID, request));
 
         Assertions.assertTrue(error instanceof InvalidValueException);
     }
@@ -88,9 +87,7 @@ class TransactionServiceTest {
         when(userService.findByIdAndActiveTrue(ID)).thenReturn(user);
 
         InvalidPinException error =
-                Assertions.assertThrows(InvalidPinException.class, () -> {
-                    transactionService.deposit(ID, request);
-                });
+                Assertions.assertThrows(InvalidPinException.class, () -> transactionService.deposit(ID, request));
 
         Assertions.assertTrue(error instanceof InvalidPinException);
     }
@@ -105,7 +102,8 @@ class TransactionServiceTest {
         when(repository.save(any())).thenReturn(transaction);
 
         TransactionResponseDto response = transactionService.withdraw(ID, request);
-        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.WITHDRAWAL, TransactionType.OUTPUT, response.date(), new BigDecimal("20"));
+        TransactionResponseDto expectedResponse = createTransactionResponse(FinancialTransaction.WITHDRAWAL,
+                TransactionType.OUTPUT, response.date(), new BigDecimal("20"));
 
         Assertions.assertEquals(expectedResponse, response);
     }
@@ -117,9 +115,7 @@ class TransactionServiceTest {
         when(userService.findByIdAndActiveTrue(ID)).thenReturn(user);
 
         InvalidValueException error =
-                Assertions.assertThrows(InvalidValueException.class, () -> {
-                    transactionService.withdraw(ID, request);
-                });
+                Assertions.assertThrows(InvalidValueException.class, () -> transactionService.withdraw(ID, request));
 
         Assertions.assertTrue(error instanceof InvalidValueException);
     }
@@ -131,44 +127,117 @@ class TransactionServiceTest {
         when(userService.findByIdAndActiveTrue(ID)).thenReturn(user);
 
         InvalidPinException error =
-                Assertions.assertThrows(InvalidPinException.class, () -> {
-                    transactionService.withdraw(ID, request);
-                });
+                Assertions.assertThrows(InvalidPinException.class, () -> transactionService.withdraw(ID, request));
 
         Assertions.assertTrue(error instanceof InvalidPinException);
     }
 
     @Test
-    void shouldReturnInvalidPinException_WhenWithdrawingWithInvalidBalance() {
+    void shouldReturnInvalidBalanceException_WhenWithdrawingWithInvalidBalance() {
         TransactionRequestDto request = new TransactionRequestDto(new BigDecimal("100"), "1235");
         User user = createUser(BigDecimal.ZERO);
         when(userService.findByIdAndActiveTrue(ID)).thenReturn(user);
 
         InvalidBalanceException error =
-                Assertions.assertThrows(InvalidBalanceException.class, () -> {
-                    transactionService.withdraw(ID, request);
-                });
+                Assertions.assertThrows(InvalidBalanceException.class, () -> transactionService.withdraw(ID, request));
 
         Assertions.assertTrue(error instanceof InvalidBalanceException);
     }
 
-    private TransactionResponseDto createTransactionResponse(FinancialTransaction financialTransaction, TransactionType type, Instant date, BigDecimal balance) {
+    @Test
+    void shouldReturnTransactionResponseDto_WhenValidTransfer() {
+        Long senderId = 1L;
+        Long receiverId = 2L;
+        User sender = createUser(new BigDecimal("20"));
+        User receiver = createUser(new BigDecimal("20"));
+        TransactionRequestDto request = new TransactionRequestDto(TRANSACTION_VALUE, "1234");
+
+        Transaction transaction = new Transaction(sender, receiver, FinancialTransaction.TRANSFER,
+                TransactionType.OUTPUT, TRANSACTION_VALUE);
+
+
+        when(userService.findByIdAndActiveTrue(senderId)).thenReturn(sender);
+        when(userService.findByIdAndActiveTrue(receiverId)).thenReturn(receiver);
+        when(repository.save(any())).thenReturn(transaction);
+
+        TransactionResponseDto response = transactionService.transfer(senderId, receiverId, request);
+        TransactionResponseDto expectedResponse = createTransactionTransferResponse(
+                response.date(), new BigDecimal("20"));
+
+        Assertions.assertEquals(expectedResponse, response);
+    }
+
+    @Test
+    void shouldReturnInvalidValueException_WhenTransferringWorthlessAmount() {
+        TransactionRequestDto request = new TransactionRequestDto(new BigDecimal("-100"), "1234");
+        Long senderId = 1L;
+        User sender = createUser(new BigDecimal("20"));
+
+        when(userService.findByIdAndActiveTrue(senderId)).thenReturn(sender);
+
+        InvalidValueException error =
+                Assertions.assertThrows(InvalidValueException.class, () -> transactionService.withdraw(ID, request));
+
+        Assertions.assertTrue(error instanceof InvalidValueException);
+    }
+
+    @Test
+    void shouldReturnInvalidPinException_WhenTransferringWithInvalidPin() {
+        TransactionRequestDto request = new TransactionRequestDto(new BigDecimal("100"), "1235");
+        Long senderId = 1L;
+        User sender = createUser(new BigDecimal("200"));
+
+        when(userService.findByIdAndActiveTrue(senderId)).thenReturn(sender);
+
+        InvalidPinException error =
+                Assertions.assertThrows(InvalidPinException.class, () -> transactionService.withdraw(ID, request));
+
+        Assertions.assertTrue(error instanceof InvalidPinException);
+    }
+
+    @Test
+    void shouldReturnInvalidBalanceException_WhenTransferringWithInvalidBalance() {
+        TransactionRequestDto request = new TransactionRequestDto(new BigDecimal("100"), "1235");
+        Long senderId = 1L;
+        User sender = createUser(BigDecimal.ZERO);
+
+        when(userService.findByIdAndActiveTrue(senderId)).thenReturn(sender);
+
+        InvalidBalanceException error =
+                Assertions.assertThrows(InvalidBalanceException.class, () -> transactionService.withdraw(ID, request));
+
+        Assertions.assertTrue(error instanceof InvalidBalanceException);
+    }
+
+    private TransactionResponseDto createTransactionResponse(FinancialTransaction financialTransaction,
+                                                             TransactionType type, Instant date, BigDecimal balance ) {
         return new TransactionResponseDto(
                 financialTransaction,
                 type,
                 date,
                 TRANSACTION_VALUE,
                 balance,
-                createUserTransactionDto(TRANSACTION_VALUE),
+                createUserTransactionDto(),
                 null);
+    }
+
+    private TransactionResponseDto createTransactionTransferResponse(Instant date, BigDecimal balance) {
+        return new TransactionResponseDto(
+                FinancialTransaction.TRANSFER,
+                TransactionType.OUTPUT,
+                date,
+                TRANSACTION_VALUE,
+                balance,
+                createUserTransactionDto(),
+                createUserTransactionDto());
     }
 
     private Transaction createTransaction(User user, FinancialTransaction financialTransaction, TransactionType type) {
         return new Transaction(user, financialTransaction, type, TRANSACTION_VALUE);
     }
 
-    private UserTransactionDto createUserTransactionDto(BigDecimal balance) {
-        return new UserTransactionDto(createUser(balance));
+    private UserTransactionDto createUserTransactionDto() {
+        return new UserTransactionDto(createUser(TransactionServiceTest.TRANSACTION_VALUE));
     }
 
     private User createUser(BigDecimal balance) {
