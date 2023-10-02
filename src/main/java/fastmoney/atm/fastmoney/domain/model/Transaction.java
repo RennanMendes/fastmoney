@@ -54,4 +54,15 @@ public class Transaction {
         this.fromAccount = user;
     }
 
+    public Transaction(User fromAccount, User toAccount, FinancialTransaction financialTransaction, TransactionType transactionType, BigDecimal value) {
+        this.financialTransaction = financialTransaction;
+        this.transactionType = transactionType;
+        this.date = Instant.now();
+        this.value = value;
+        this.totalAfterOperation = fromAccount.getAccount().getBalance();
+        this.fromAccount = fromAccount;
+        this.toAccount = toAccount;
+    }
+
+
 }
