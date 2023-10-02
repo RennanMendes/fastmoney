@@ -6,8 +6,6 @@ import fastmoney.atm.fastmoney.domain.dto.user.UserRequestDto;
 import fastmoney.atm.fastmoney.domain.dto.user.UserResponseDto;
 import fastmoney.atm.fastmoney.domain.dto.user.UserUpdateDto;
 import fastmoney.atm.fastmoney.domain.exception.UserNotFoundException;
-import fastmoney.atm.fastmoney.domain.model.Account;
-import fastmoney.atm.fastmoney.domain.model.User;
 import fastmoney.atm.fastmoney.domain.service.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -52,7 +50,7 @@ class UserControllerTest {
 
     @Test
     void shouldReturnStatus200_WhenFindAllUsers() throws Exception {
-        UserResponseDto user = createUserResponseDto(1L, NAME, CPF, EMAIL);
+        UserResponseDto user = createUserResponseDto(1L);
         Page<UserResponseDto> pagedResponse = new PageImpl<>(List.of(user));
 
         when(userService.findAll(any())).thenReturn(pagedResponse);
@@ -67,7 +65,7 @@ class UserControllerTest {
     @Test
     void shouldReturnStatus200_WhenFindUserById() throws Exception {
         Long id = 1L;
-        UserResponseDto user = createUserResponseDto(id, NAME, CPF, EMAIL);
+        UserResponseDto user = createUserResponseDto(id);
 
         when(userService.findById(id)).thenReturn(user);
 
@@ -91,7 +89,7 @@ class UserControllerTest {
     @Test
     void shouldReturnStatus201_WhenUserCreated() throws Exception {
         UserRequestDto userRequest = createUserRequestDto(NAME, CPF, EMAIL);
-        UserResponseDto userResponse = createUserResponseDto(1L, NAME, CPF, EMAIL);
+        UserResponseDto userResponse = createUserResponseDto(1L);
 
         when(userService.create(userRequest)).thenReturn(userResponse);
 
@@ -142,7 +140,7 @@ class UserControllerTest {
     void shouldReturnStatus200_WhenUserUpdated() throws Exception {
         Long id = 1L;
         UserUpdateDto userRequest = new UserUpdateDto(NAME, "1234", "1234");
-        UserResponseDto userResponse = createUserResponseDto(id, NAME, CPF, EMAIL);
+        UserResponseDto userResponse = createUserResponseDto(id);
 
         when(userService.update(id, userRequest)).thenReturn(userResponse);
 
@@ -170,11 +168,11 @@ class UserControllerTest {
     }
 
 
-    private UserResponseDto createUserResponseDto(Long id, String name, String cpf, String email) {
+    private UserResponseDto createUserResponseDto(Long id) {
         return new UserResponseDto(id,
-                name,
-                cpf,
-                email,
+                UserControllerTest.NAME,
+                UserControllerTest.CPF,
+                UserControllerTest.EMAIL,
                 new AccountResponseDto("100", 8540, BigDecimal.ZERO),
                 true);
     }
