@@ -3,7 +3,6 @@ package fastmoney.atm.fastmoney.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionRequestDto;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionResponseDto;
-import fastmoney.atm.fastmoney.domain.dto.user.UserResponseDto;
 import fastmoney.atm.fastmoney.domain.dto.user.UserTransactionDto;
 import fastmoney.atm.fastmoney.domain.enumerated.FinancialTransaction;
 import fastmoney.atm.fastmoney.domain.enumerated.TransactionType;
@@ -27,7 +26,6 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -180,6 +178,20 @@ class TransactionControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
+    @Test
+    void shouldReturnStatus200_WhenStatement() throws Exception {
+        Long id =1L;
+        Pageable pageable = Pageable.unpaged();
+
+        TransactionResponseDto responseDto = createTransactionResponse(FinancialTransaction.DEPOSIT,TransactionType.INPUT);
+        Page<TransactionResponseDto> pagedResponse = new PageImpl<>(List.of(responseDto));
+
+        when(transactionService.statement(1L,pageable)).thenReturn(pagedResponse);
+
+        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/{id}", id));
+
+        Assertions.assertEquals(HttpStatus.OK.value(), resultActions.andReturn().getResponse().getStatus());
+    }
 
     private TransactionResponseDto createTransactionResponse(FinancialTransaction financialTransaction, TransactionType type) {
         return new TransactionResponseDto(
