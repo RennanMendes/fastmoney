@@ -41,7 +41,7 @@ class UserServiceTest {
     @Test
     void shouldReturnUserResponseDto_whenCreateCorrectly() {
         UserRequestDto userRequest = createUserRequestDto();
-        User user = createUser(ID);
+        User user = createUser();
         UserResponseDto expectedResponse = createUserResponseDto(user);
 
         when(repository.save(any())).thenReturn(user);
@@ -53,7 +53,7 @@ class UserServiceTest {
 
     @Test
     void shouldReturnUserResponseDto_whenFoundByValidId() {
-        User user = createUser(ID);
+        User user = createUser();
         UserResponseDto expectedResponse = createUserResponseDto(user);
 
         when(repository.findByIdAndActiveTrue(ID)).thenReturn(Optional.of(user));
@@ -65,9 +65,7 @@ class UserServiceTest {
 
     @Test
     void shouldReturnUserNotFound_whenFoundByInvalidId() {
-        UserNotFoundException error = Assertions.assertThrows(UserNotFoundException.class, () -> {
-            userService.findById(ID);
-        });
+        UserNotFoundException error = Assertions.assertThrows(UserNotFoundException.class, () -> userService.findById(ID));
 
         Assertions.assertTrue(error instanceof UserNotFoundException);
     }
@@ -76,7 +74,7 @@ class UserServiceTest {
     void shouldReturnUserResponseDto_whenFoundAll() {
         Pageable pageable = PageRequest.of(0, 20);
 
-        User user = createUser(ID);
+        User user = createUser();
         Page<User> pageUsers = new PageImpl<>(List.of(user));
         Page<UserResponseDto> ExpectedPage = new PageImpl<>(List.of(new UserResponseDto(user)));
 
@@ -90,7 +88,7 @@ class UserServiceTest {
     @Test
     void shouldReturnUserResponseDto_whenUpdatedUser() {
         UserUpdateDto userUpdateDto = new UserUpdateDto("Rennan", "1234", "1234");
-        User user = createUser(ID);
+        User user = createUser();
         UserResponseDto expectedResponse = createUserResponseDto(user);
 
         when(repository.findByIdAndActiveTrue(ID)).thenReturn(Optional.of(user));
@@ -104,8 +102,8 @@ class UserServiceTest {
         return new UserRequestDto("Rennan", "152.656.530-74", "rennan@email.com", "1234", "100", "1234");
     }
 
-    private User createUser(Long id) {
-        return new User(id,
+    private User createUser() {
+        return new User(ID,
                 "Rennan",
                 "152.656.530-74",
                 "rennan@email.com",
