@@ -8,16 +8,19 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 
 @Component
-public class TimeValidation implements TransactionValidation{
+public class TimeValidation implements TransactionValidation {
+
     @Override
     public void validate(ValidationDto validationDto) {
+        LocalTime now = LocalTime.now();
         LocalTime startTime = LocalTime.of(20, 0);
         LocalTime endTime = LocalTime.of(5, 0);
 
-        if(validationDto.now().isAfter(startTime)|| validationDto.now().isBefore(endTime)){
-            if (validationDto.value().compareTo(new BigDecimal(500))>0){
+        if (now.isAfter(startTime) || now.isBefore(endTime)) {
+            if (validationDto.value().compareTo(new BigDecimal(500)) > 0) {
                 throw new BusinessHoursException();
             }
         }
     }
+
 }

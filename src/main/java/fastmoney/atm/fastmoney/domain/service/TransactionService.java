@@ -69,7 +69,7 @@ public class TransactionService {
     }
 
     private void validate(User user, TransactionRequestDto requestDto, TransactionType type) {
-        ValidationDto dto = new ValidationDto(user, requestDto.value(), requestDto.pin(), type, LocalTime.now());
+        ValidationDto dto = new ValidationDto(user, requestDto.value(), requestDto.pin(), type);
         validators.forEach(v -> v.validate(dto));
     }
 
