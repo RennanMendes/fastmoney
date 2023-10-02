@@ -3,6 +3,7 @@ package fastmoney.atm.fastmoney.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionRequestDto;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionResponseDto;
+import fastmoney.atm.fastmoney.domain.dto.user.UserResponseDto;
 import fastmoney.atm.fastmoney.domain.dto.user.UserTransactionDto;
 import fastmoney.atm.fastmoney.domain.enumerated.FinancialTransaction;
 import fastmoney.atm.fastmoney.domain.enumerated.TransactionType;
@@ -13,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,8 +24,12 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
@@ -57,8 +65,8 @@ class TransactionControllerTest {
 
         String jsonResponse = resultActions.andReturn().getResponse().getContentAsString();
 
-        Assertions.assertEquals(objectMapper.writeValueAsString(expectedResponse), jsonResponse);
-        Assertions.assertTrue(HttpStatus.OK.value() == resultActions.andReturn().getResponse().getStatus());
+        assertEquals(objectMapper.writeValueAsString(expectedResponse), jsonResponse);
+        assertEquals(HttpStatus.OK.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -70,7 +78,7 @@ class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
-        Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -82,7 +90,7 @@ class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
-        Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -99,8 +107,8 @@ class TransactionControllerTest {
 
         String jsonResponse = resultActions.andReturn().getResponse().getContentAsString();
 
-        Assertions.assertEquals(objectMapper.writeValueAsString(expectedResponse), jsonResponse);
-        Assertions.assertTrue(HttpStatus.OK.value() == resultActions.andReturn().getResponse().getStatus());
+        assertEquals(objectMapper.writeValueAsString(expectedResponse), jsonResponse);
+        assertEquals(HttpStatus.OK.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -112,7 +120,7 @@ class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
-        Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -124,7 +132,7 @@ class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
-        Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -142,8 +150,8 @@ class TransactionControllerTest {
 
         String jsonResponse = resultActions.andReturn().getResponse().getContentAsString();
 
-        Assertions.assertEquals(objectMapper.writeValueAsString(expectedResponse), jsonResponse);
-        Assertions.assertTrue(HttpStatus.OK.value() == resultActions.andReturn().getResponse().getStatus());
+        assertEquals(objectMapper.writeValueAsString(expectedResponse), jsonResponse);
+        assertEquals(HttpStatus.OK.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -156,7 +164,7 @@ class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
-        Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
     @Test
@@ -169,7 +177,7 @@ class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
 
-        Assertions.assertTrue(HttpStatus.BAD_REQUEST.value() == resultActions.andReturn().getResponse().getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), resultActions.andReturn().getResponse().getStatus());
     }
 
 
