@@ -1,5 +1,6 @@
 package fastmoney.atm.fastmoney.domain.service;
 
+import fastmoney.atm.fastmoney.domain.dto.mail.EmailDto;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionResponseDto;
 import fastmoney.atm.fastmoney.domain.dto.transaction.TransactionRequestDto;
 import fastmoney.atm.fastmoney.domain.dto.transaction.ValidationDto;
@@ -16,11 +17,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
 public class TransactionService {
+
+    @Autowired
+     MailService mailService;
 
     private final UserService userService;
     private final TransactionRepository repository;
@@ -34,11 +37,11 @@ public class TransactionService {
     }
 
     @Transactional
-    public TransactionResponseDto deposit(Long id, TransactionRequestDto requestDto) {
+    public TransactionResponseDto deposit(Long id, TransactionRequestDto requestDto){
         User user = userService.findByIdAndActiveTrue(id);
         this.validate(user, requestDto, TransactionType.INPUT);
         Transaction transaction = performTransaction(user, FinancialTransaction.DEPOSIT, TransactionType.INPUT, requestDto.value());
-
+        mailService.depositEmail(new EmailDto(user.getName(),transaction.getValue(),user.getEmail()));
         return new TransactionResponseDto(transaction);
     }
 
@@ -47,7 +50,7 @@ public class TransactionService {
         User user = userService.findByIdAndActiveTrue(id);
         this.validate(user, requestDto, TransactionType.OUTPUT);
         Transaction transaction = performTransaction(user, FinancialTransaction.WITHDRAWAL, TransactionType.OUTPUT, requestDto.value());
-
+        mailService.withdrawEmail(new EmailDto(user.getName(),transaction.getValue(),user.getEmail()));
         return new TransactionResponseDto(transaction);
     }
 

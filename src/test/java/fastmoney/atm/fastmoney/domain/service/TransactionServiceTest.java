@@ -20,6 +20,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -211,6 +215,24 @@ class TransactionServiceTest {
         Assertions.assertNotNull(error);
     }
 
+    @Test
+    void shouldReturnTransactionResponseDto_whenFoundAllByAccountId() {
+        Pageable pageable = PageRequest.of(0, 20);
+        User user = createUser(new BigDecimal("100"));
+        Transaction transaction = createTransaction(user, FinancialTransaction.DEPOSIT, TransactionType.INPUT);
+        Page<Transaction> pageTransaction = new PageImpl<>(List.of(transaction));
+
+        when(userService.findByIdAndActiveTrue(ID)).thenReturn(user);
+        when(repository.findByFromAccountId(user, pageable)).thenReturn(pageTransaction);
+
+        Page<TransactionResponseDto> response = transactionService.statement(ID,pageable);
+
+        TransactionResponseDto transactionResponseDto = createTransactionResponse(FinancialTransaction.DEPOSIT,
+                TransactionType.INPUT, response.getContent().get(0).date(), new BigDecimal("100"));
+        Page<TransactionResponseDto> pagedExpectedResponse = new PageImpl<>(List.of(transactionResponseDto));
+
+        Assertions.assertEquals(pagedExpectedResponse, response);
+    }
 
     private TransactionResponseDto createTransactionResponse(FinancialTransaction financialTransaction,
                                                              TransactionType type, Instant date, BigDecimal balance) {
