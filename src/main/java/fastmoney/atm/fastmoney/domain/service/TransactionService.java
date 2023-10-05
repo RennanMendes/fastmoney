@@ -23,7 +23,7 @@ import java.util.List;
 public class TransactionService {
 
     @Autowired
-     MailService mailService;
+    MailService mailService;
 
     private final UserService userService;
     private final TransactionRepository repository;
@@ -37,11 +37,11 @@ public class TransactionService {
     }
 
     @Transactional
-    public TransactionResponseDto deposit(Long id, TransactionRequestDto requestDto){
+    public TransactionResponseDto deposit(Long id, TransactionRequestDto requestDto) {
         User user = userService.findByIdAndActiveTrue(id);
         this.validate(user, requestDto, TransactionType.INPUT);
         Transaction transaction = performTransaction(user, FinancialTransaction.DEPOSIT, TransactionType.INPUT, requestDto.value());
-        mailService.depositEmail(new EmailDto(user.getName(),transaction.getValue(),user.getEmail()));
+
         return new TransactionResponseDto(transaction);
     }
 
@@ -50,7 +50,7 @@ public class TransactionService {
         User user = userService.findByIdAndActiveTrue(id);
         this.validate(user, requestDto, TransactionType.OUTPUT);
         Transaction transaction = performTransaction(user, FinancialTransaction.WITHDRAWAL, TransactionType.OUTPUT, requestDto.value());
-        mailService.withdrawEmail(new EmailDto(user.getName(),transaction.getValue(),user.getEmail()));
+
         return new TransactionResponseDto(transaction);
     }
 
@@ -78,13 +78,22 @@ public class TransactionService {
 
     private Transaction performTransaction(User user, FinancialTransaction financialTransaction, TransactionType type, BigDecimal amount) {
         user.getAccount().calculateBalance(type, amount);
-        return repository.save(new Transaction(user, financialTransaction, type, amount));
+        Transaction transaction = repository.save(new Transaction(user, financialTransaction, type, amount));
+        mailService.depositOrWithdrawEmail(new EmailDto(user.getName(), amount, user.getEmail(), type));
+        return transaction;
     }
 
     private Transaction performTransfer(User sender, User receiver, BigDecimal amount) {
         sender.getAccount().calculateBalance(TransactionType.OUTPUT, amount);
         receiver.getAccount().calculateBalance(TransactionType.INPUT, amount);
+
         repository.save(new Transaction(receiver, sender, FinancialTransaction.TRANSFER, TransactionType.INPUT, amount));
-        return repository.save(new Transaction(sender, receiver, FinancialTransaction.TRANSFER, TransactionType.OUTPUT, amount));
+        Transaction transaction = repository.save(new Transaction(sender, receiver, FinancialTransaction.TRANSFER, TransactionType.OUTPUT, amount));
+
+        mailService.transferEmail(new EmailDto(sender.getName(), amount, sender.getEmail(), TransactionType.OUTPUT));
+        mailService.transferEmail(new EmailDto(receiver.getName(), amount, receiver.getEmail(), TransactionType.INPUT));
+
+        return transaction;
     }
+
 }
