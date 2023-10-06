@@ -6,10 +6,10 @@ import fastmoney.atm.fastmoney.domain.dto.user.UserUpdateDto;
 import fastmoney.atm.fastmoney.domain.exception.UserNotFoundException;
 import fastmoney.atm.fastmoney.domain.model.User;
 import fastmoney.atm.fastmoney.domain.repository.UserRepository;
-import fastmoney.atm.fastmoney.infra.security.SecurityConfigurations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService {
 
+
     @Autowired
-    private SecurityConfigurations security;
+    private PasswordEncoder passwordEncoder;
 
     private UserRepository repository;
 
@@ -63,8 +64,8 @@ public class UserService {
         return  repository.findByIdAndActiveTrue(id).orElseThrow(UserNotFoundException::new);
     }
 
-    private String encryptPassword(String password){
-       return security.passwordEncoder().encode(password);
+    public String encryptPassword(String password){
+       return passwordEncoder.encode(password);
     }
 
 }

@@ -8,15 +8,18 @@ import fastmoney.atm.fastmoney.domain.model.Account;
 import fastmoney.atm.fastmoney.domain.model.User;
 import fastmoney.atm.fastmoney.domain.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import java.math.BigDecimal;
@@ -32,11 +35,19 @@ class UserServiceTest {
 
     private static final Long ID = 1L;
 
+    @InjectMocks
+    UserService userService;
+
     @Mock
     private UserRepository repository;
 
-    @InjectMocks
-    UserService userService;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     void shouldReturnUserResponseDto_whenCreateCorrectly() {
@@ -45,8 +56,12 @@ class UserServiceTest {
         UserResponseDto expectedResponse = createUserResponseDto(user);
 
         when(repository.save(any())).thenReturn(user);
+        when(passwordEncoder.encode(any())).thenReturn("$2a$10$J76/zwJqHkFgKFJi8wWJTuwjYDX8U0elOJVGBVNBwGv2to5nggZHa");
 
         UserResponseDto userResponse = userService.create(userRequest);
+
+        System.out.println("Esperado" + expectedResponse);
+        System.out.println("Recebido" + userResponse);
 
         assertEquals(expectedResponse, userResponse);
     }
@@ -67,7 +82,7 @@ class UserServiceTest {
     void shouldReturnUserNotFound_whenFoundByInvalidId() {
         UserNotFoundException error = Assertions.assertThrows(UserNotFoundException.class, () -> userService.findById(ID));
 
-        Assertions.assertTrue(error instanceof UserNotFoundException);
+        Assertions.assertNotNull(error);
     }
 
     @Test
