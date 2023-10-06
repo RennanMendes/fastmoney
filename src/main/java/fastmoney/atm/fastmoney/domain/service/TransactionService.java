@@ -22,18 +22,17 @@ import java.util.List;
 @Service
 public class TransactionService {
 
-    @Autowired
-    MailService mailService;
-
     private final UserService userService;
     private final TransactionRepository repository;
+    private final MailService mailService;
     private final List<TransactionValidation> validators;
 
     @Autowired
-    public TransactionService(UserService userService, TransactionRepository repository, List<TransactionValidation> validators) {
+    public TransactionService(UserService userService, TransactionRepository repository, List<TransactionValidation> validators,MailService mailService) {
         this.userService = userService;
         this.repository = repository;
         this.validators = validators;
+        this.mailService = mailService;
     }
 
     @Transactional
