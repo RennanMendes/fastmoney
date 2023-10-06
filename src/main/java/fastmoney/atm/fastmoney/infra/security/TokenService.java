@@ -15,7 +15,7 @@ import java.time.ZoneOffset;
 @Service
 public class TokenService {
 
-    @Value("{api.security.token.secret}")
+    @Value("${api.security.token.secret}")
     private String secret;
 
     public String generateToken(User user){
@@ -48,4 +48,7 @@ public class TokenService {
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
 
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
 }
