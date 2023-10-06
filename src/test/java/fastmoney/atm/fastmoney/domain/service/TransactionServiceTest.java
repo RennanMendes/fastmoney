@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -44,6 +46,9 @@ class TransactionServiceTest {
     @Mock
     private TransactionRepository repository;
 
+    @Mock
+    MailService mailService;
+
     @InjectMocks
     private TransactionService transactionService;
 
@@ -52,7 +57,8 @@ class TransactionServiceTest {
 
     @BeforeEach
     void setUp() {
-        transactionService = new TransactionService(userService, repository, validators);
+        MockitoAnnotations.initMocks(this);
+        transactionService = new TransactionService(userService, repository, validators, mailService);
     }
 
     @Test
@@ -62,6 +68,7 @@ class TransactionServiceTest {
         Transaction transaction = createTransaction(user, FinancialTransaction.DEPOSIT, TransactionType.INPUT);
 
         when(userService.findByIdAndActiveTrue(ID)).thenReturn(user);
+        doNothing().when(mailService).depositOrWithdrawEmail(any());
         when(repository.save(any())).thenReturn(transaction);
 
         TransactionResponseDto response = transactionService.deposit(ID, request);
@@ -225,7 +232,7 @@ class TransactionServiceTest {
         when(userService.findByIdAndActiveTrue(ID)).thenReturn(user);
         when(repository.findByFromAccountId(user, pageable)).thenReturn(pageTransaction);
 
-        Page<TransactionResponseDto> response = transactionService.statement(ID,pageable);
+        Page<TransactionResponseDto> response = transactionService.statement(ID, pageable);
 
         TransactionResponseDto transactionResponseDto = createTransactionResponse(FinancialTransaction.DEPOSIT,
                 TransactionType.INPUT, response.getContent().get(0).date(), new BigDecimal("100"));
