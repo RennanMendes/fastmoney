@@ -47,7 +47,6 @@ public class User implements UserDetails {
 
     public void update(UserUpdateDto userData) {
         this.name = userData.name();
-        this.password = userData.password();
         account.update(userData.pin());
     }
 

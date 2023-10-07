@@ -141,7 +141,7 @@ class UserControllerTest {
     @Test
     void shouldReturnStatus200_WhenUserUpdated() throws Exception {
         Long id = 1L;
-        UserUpdateDto userRequest = new UserUpdateDto(NAME, "1234", "1234");
+        UserUpdateDto userRequest = new UserUpdateDto(NAME,  "1234");
         UserResponseDto userResponse = createUserResponseDto(id);
 
         when(userService.update(id, userRequest)).thenReturn(userResponse);
