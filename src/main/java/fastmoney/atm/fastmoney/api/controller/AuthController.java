@@ -4,6 +4,7 @@ import fastmoney.atm.fastmoney.domain.dto.user.LoginDTO;
 import fastmoney.atm.fastmoney.domain.model.User;
 import fastmoney.atm.fastmoney.infra.dto.TokenJwtDTO;
 import fastmoney.atm.fastmoney.infra.security.TokenService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ public class AuthController {
     private TokenService tokenService;
 
     @PostMapping
+    @Operation(summary = "Faz login na aplicação")
     public ResponseEntity login(@RequestBody @Valid LoginDTO loginDTO) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(loginDTO.login(), loginDTO.password());
         var authentication = manager.authenticate(authenticationToken);
