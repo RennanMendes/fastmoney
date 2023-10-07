@@ -102,7 +102,7 @@ class UserServiceTest {
 
     @Test
     void shouldReturnUserResponseDto_whenUpdatedUser() {
-        UserUpdateDto userUpdateDto = new UserUpdateDto("Rennan", "1234", "1234");
+        UserUpdateDto userUpdateDto = new UserUpdateDto("Rennan", "1234");
         User user = createUser();
         UserResponseDto expectedResponse = createUserResponseDto(user);
 
