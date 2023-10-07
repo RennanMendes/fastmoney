@@ -49,7 +49,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @SecurityRequirement(name = "bearer-key")
-    @Operation(summary = "Exclui usuário")
+    @Operation(summary = "Atualiza dados de um usuário")
     public ResponseEntity<UserResponseDto> update(@PathVariable Long id, @RequestBody UserUpdateDto userUpdateDto){
         UserResponseDto userResponse = userService.update(id,userUpdateDto);
         return ResponseEntity.ok().body(userResponse);
