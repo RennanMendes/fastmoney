@@ -60,9 +60,6 @@ class UserServiceTest {
 
         UserResponseDto userResponse = userService.create(userRequest);
 
-        System.out.println("Esperado" + expectedResponse);
-        System.out.println("Recebido" + userResponse);
-
         assertEquals(expectedResponse, userResponse);
     }
 
